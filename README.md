@@ -1,5 +1,5 @@
 # ergastR
-R wrapper for ergast API
+R wrapper for [*ergast* API](http://ergast.com/mrd/).
 
 
 ````
