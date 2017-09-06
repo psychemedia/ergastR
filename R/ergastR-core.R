@@ -46,7 +46,27 @@ timeInS=function(tStr){
 
 ##==========  URL BUILDERS
 
-API_PATH="http://ergast.com/api/f1/"
+packageEnv = new.env()
+
+#' Display API_PATH
+#'
+#' \code{api_path}
+#' @return API_PATH
+#' @export
+api_path=function(){
+  get("API_PATH", envir=packageEnv)
+}
+
+#' Set API_PATH
+#'
+#' \code{set_api_path}
+#' @export
+set_api_path=function(new_path){
+  assign("API_PATH", new_path, envir=packageEnv)
+  api_path()
+}
+
+set_api_path("http://ergast.com/api/f1/")
 #API_PATH="http://ergast.com/api/fe/"
 
 #?include a format adder function?
@@ -59,7 +79,7 @@ API_PATH="http://ergast.com/api/f1/"
 #' @return a URL
 getRacesDataByYear.URL=function(year,format='json'){
   #Need additional callback parameter and handler if accept jsonp
-  paste(API_PATH,year,".",format,sep='')
+  paste(api_path(),year,".",format,sep='')
 }
 
 #' Get URL for pits by race-and-year
@@ -70,7 +90,7 @@ getRacesDataByYear.URL=function(year,format='json'){
 #' @param character data format (json, XML)
 #' @return a URL
 getPitsByYearRace.URL=function(year,raceNum,format='json'){
-  paste(API_PATH,year,"/",raceNum,"/pitstops.",format,"?limit=1000",sep='')
+  paste(api_path(),year,"/",raceNum,"/pitstops.",format,"?limit=1000",sep='')
 }
 
 #' Get URL for laps by race-and-year
@@ -82,7 +102,7 @@ getPitsByYearRace.URL=function(year,raceNum,format='json'){
 #' @param character data format (json, XML)
 #' @return a URL
 getLapsByYearRace.URL=function(year,raceNum,format='json',offset=0){
-  paste(API_PATH,year,"/",raceNum,"/laps.",format,"?limit=1000","&offset=",offset,sep='')
+  paste(api_path(),year,"/",raceNum,"/laps.",format,"?limit=1000","&offset=",offset,sep='')
 }
 
 #' Get URL for laps by race-and-year-and-driver
@@ -95,7 +115,7 @@ getLapsByYearRace.URL=function(year,raceNum,format='json',offset=0){
 #' @param character data format (json, XML)
 #' @return a URL
 getLapsByYearRaceDriver.URL =function(year,raceNum,driverId,format='json'){
-  paste(API_PATH,year,"/",raceNum,"/drivers/",driverId,"/laps.",format,"?limit=1000",sep='')
+  paste(api_path(),year,"/",raceNum,"/drivers/",driverId,"/laps.",format,"?limit=1000",sep='')
 }
 
 #' Get URL for qualifying
@@ -108,7 +128,7 @@ getLapsByYearRaceDriver.URL =function(year,raceNum,driverId,format='json'){
 #' @param character data format (json, XML)
 #' @return a URL
 getQuali.URL =function(year=NA,raceNum=NA,driverRef=NA,constructorRef=NA,format='json'){
-  url=paste(API_PATH,sep='')
+  url=paste(api_path(),sep='')
   if (!is.na(year)) {
     url=paste(url,year,'/',sep='')
     if (!is.na(raceNum)) url=paste(url,raceNum,'/',sep='')
@@ -128,7 +148,7 @@ getQuali.URL =function(year=NA,raceNum=NA,driverRef=NA,constructorRef=NA,format=
 #' @param character data format (json, XML)
 #' @return a URL
 getRaceResultsByYearRace.URL=function(year,raceNum,format="json"){
-  paste(API_PATH,year,"/",raceNum,"/results.",format,"?limit=2500",sep='')
+  paste(api_path(),year,"/",raceNum,"/results.",format,"?limit=2500",sep='')
 }
 
 #' Get URL for results by race-and-year
@@ -138,7 +158,7 @@ getRaceResultsByYearRace.URL=function(year,raceNum,format="json"){
 #' @param character data format (json, XML)
 #' @return a URL
 getDriversByYear.URL=function(year,format='json'){
-  paste(API_PATH,year,"/drivers.",format,"?limit=2500",sep='')
+  paste(api_path(),year,"/drivers.",format,"?limit=2500",sep='')
 }
 
 #' Get URL for results by year and driver
@@ -150,7 +170,7 @@ getDriversByYear.URL=function(year,format='json'){
 #' @param character data format (json, XML)
 #' @return a URL
 getDriverResultsByYear.URL=function(year,driverRef=NA,format='json'){
-  url=paste(API_PATH,year,'/',sep='')
+  url=paste(api_path(),year,'/',sep='')
   if (!is.na(driverRef)) url=paste(url,"drivers/",driverRef,'/',sep='')
   url=paste(url,"results.",format,"?limit=2500",sep='')
   url
@@ -570,7 +590,7 @@ resultsData.df=function(year,raceNum){
 #' @export
 raceWinner=function(year,raceNum){
   dataPath=paste(year,raceNum,"results","1",sep='/')
-  wURL=paste(API_PATH,dataPath,".json",sep='')
+  wURL=paste(api_path(),dataPath,".json",sep='')
 
   wd=fromJSON(wURL,simplify=FALSE)
   wd$MRData$RaceTable$Races[[1]]$Results[[1]]$Driver$driverId
@@ -611,9 +631,9 @@ ergast.json.parse.driverStandings.df=function(dURL){
 #' @export
 seasonStandings=function(year,race=''){
   if (race=='')
-    dURL= paste(API_PATH,year,'/driverStandings.json',sep='')
+    dURL= paste(api_path(),year,'/driverStandings.json',sep='')
   else
-    dURL= paste(API_PATH,year,'/',race,'/driverStandings.json',sep='')
+    dURL= paste(api_path(),year,'/',race,'/driverStandings.json',sep='')
   ergast.json.parse.driverStandings.df(dURL)
 }
 
@@ -624,7 +644,7 @@ seasonStandings=function(year,race=''){
 #' @return dataframe containing standings for each driver at the end of each year
 #' @export
 driverCareerStandings.df=function(driverId){
-  dURL=paste(API_PATH,'drivers/',driverId,'/driverStandings.json',sep='')
+  dURL=paste(api_path(),'drivers/',driverId,'/driverStandings.json',sep='')
   ergast.json.parse.driverStandings.df(dURL)
 }
 
@@ -665,9 +685,9 @@ ergast.json.parse.constructorStandings.df=function(dURL){
 #' @export
 constructorStandings.df=function(year,race=''){
   if (race=='')
-    dURL=paste(API_PATH,year,'/constructorStandings.json',sep='')
+    dURL=paste(api_path(),year,'/constructorStandings.json',sep='')
   else
-    dURL= paste(API_PATH,year,'/',race,'/constructorStandings.json',sep='')
+    dURL= paste(api_path(),year,'/',race,'/constructorStandings.json',sep='')
 
   ergast.json.parse.constructorStandings.df(dURL)
 }
