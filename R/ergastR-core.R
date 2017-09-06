@@ -179,6 +179,19 @@ getDriverResultsByYear.URL=function(year,driverRef=NA,format='json'){
 ##==========  URL BUILDERS END
 
 ##==========  JSON GRABBERS
+# Cache model from https://trestletech.com/2013/04/package-wide-variablescache-in-r-package/
+
+#' Use API Cache
+#'
+#' \code{api_cache}
+#' @export
+api_cache=function(usecache=TRUE,reset=FALSE){
+  if (reset) assign("API_CACHE_ENV", new.env(), envir=packageEnv)
+  assign("API_CACHE", usecache, envir=packageEnv)
+  get("API_CACHE", envir=packageEnv)
+}
+
+api_cache(usecache=TRUE,reset=TRUE)
 
 #' Get JSON data
 #'
@@ -190,8 +203,19 @@ getDriverResultsByYear.URL=function(year,driverRef=NA,format='json'){
 getJSONbyURL=function(URL){
   #Don't abuse the ergast API
   Sys.sleep(0.25)
+  useCache=get("API_CACHE", envir=packageEnv)
+  if ((useCache) &
+      (exists(URL, envir=get("API_CACHE_ENV", envir=packageEnv)))) {
 
-  fromJSON(URL,simplify=FALSE)
+        return(get(URL, envir=get("API_CACHE_ENV", envir=packageEnv)))
+  }
+
+  jsondata = fromJSON(URL,simplify=FALSE)
+  if (useCache) {
+    assign(URL, jsondata, envir=get("API_CACHE_ENV", envir=packageEnv))
+  }
+
+  jsondata
 }
 
 ##==========  JSON GRABBERS END
